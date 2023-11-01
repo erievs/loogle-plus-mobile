@@ -53,6 +53,7 @@ dependencies {
 
     implementation ("com.github.bumptech.glide:glide:4.12.0")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+    implementation("com.google.android.material:material:1.10.0")
     annotationProcessor ("com.github.bumptech.glide:compiler:4.12.0")
     implementation ("com.squareup.picasso:picasso:2.71828")
     implementation ("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.5")
