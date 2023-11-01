@@ -21,6 +21,7 @@
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <Button
+        android:background="#ffffff"
         android:id="@+id/postButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -30,6 +31,7 @@
         android:onClick="submitPostButton" />
 
     <EditText
+        android:background="#ffffff"
         android:id="@+id/postEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -38,14 +40,18 @@
         android:padding="16dp" />
 
     <EditText
+
         android:id="@+id/usernameEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Enter your username"
         android:layout_above="@+id/postEditText"
+        android:background="#ffffff"
         android:padding="16dp" />
 
+
     <EditText
+        android:background="#ffffff"
         android:id="@+id/passwordEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
