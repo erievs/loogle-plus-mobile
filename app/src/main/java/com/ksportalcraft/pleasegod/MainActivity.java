@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
 
     private Handler handler = new Handler();
     private final int delay = 60 * 1000; // 60 seconds in milliseconds
-    private String cookie = "__test=fcc21eac01ffba8302cc093670e6d98c";
+    private String cookie = "__test=62d89c24e9b57d03a3ba3717401a3e96";
     private String userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.10240";
 
     @Override
@@ -129,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 Log.e("RetrofitError", "Error: " + t.getMessage());
                 Log.e("RetrofitError", "URL: " + call.request().url().toString());
-                // Make sure to call setRefreshing(false) when the refresh is completed
+
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
@@ -167,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                // Handle the failure of the GET request
+
                 t.printStackTrace();
                 Log.e("PostContent", "Error: " + t.getMessage());
                 showToast("Error: " + t.getMessage());
