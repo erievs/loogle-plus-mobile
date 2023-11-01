@@ -5,9 +5,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#ECEFF1"
     tools:context=".MainActivity">
 
+
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:background="#ffffff"
         android:id="@+id/swipeRefreshLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -21,7 +24,6 @@
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <Button
-        android:background="#ffffff"
         android:id="@+id/postButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -31,7 +33,6 @@
         android:onClick="submitPostButton" />
 
     <EditText
-        android:background="#ffffff"
         android:id="@+id/postEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -51,7 +52,6 @@
 
 
     <EditText
-        android:background="#ffffff"
         android:id="@+id/passwordEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -59,4 +59,5 @@
         android:inputType="textPassword"
         android:layout_above="@+id/usernameEditText"
         android:padding="16dp" />
+
 </RelativeLayout>
