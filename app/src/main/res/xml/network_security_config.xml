@@ -2,6 +2,9 @@
 <network-security-config>
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="true">loogleplus.free.nf</domain>
+        <domain includeSubdomains="true">localhost:8080</domain>
+        <domain includeSubdomains="true">http://localhost:8080</domain>
+        <domain includeSubdomains="true">localhost</domain>
         <domain includeSubdomains="true">jsonplaceholder.typicode.com</domain>
     </domain-config>
 </network-security-config>

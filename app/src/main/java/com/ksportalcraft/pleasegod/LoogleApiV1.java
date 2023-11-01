@@ -6,7 +6,7 @@ import retrofit2.Call;
 import retrofit2.http.GET;
 
 public interface LoogleApiV1 {
-    @GET("posts")
+    @GET("apiv1/mobile_posts.php")
     Call<ArrayList<Model>> callModel();
 
 }

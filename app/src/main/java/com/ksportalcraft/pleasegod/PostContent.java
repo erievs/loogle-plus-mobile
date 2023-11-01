@@ -3,13 +3,13 @@ package com.ksportalcraft.pleasegod;
 public class PostContent {
     private String username;
     private String password;
-    private String content;
+    private String postContent;
 
-    public PostContent(String username, String password, String content) {
+    public PostContent(String username, String password, String postContent) {
         this.username = username;
         this.password = password;
-        this.content = content;
+        this.postContent = postContent;
     }
 
-    // Add getters and setters if necessary
+    // Getters and setters
 }

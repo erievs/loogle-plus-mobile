@@ -9,32 +9,23 @@ import android.widget.ListView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-
-import com.ksportalcraft.pleasegod.Custom;
-import com.ksportalcraft.pleasegod.LoogleApiV1;
-import com.ksportalcraft.pleasegod.Model;
-import com.ksportalcraft.pleasegod.PostContent;
-import com.ksportalcraft.pleasegod.R;
-import com.ksportalcraft.pleasegod.YourResponseType;
-import com.ksportalcraft.pleasegod.submitPostApiV1;
-import com.squareup.picasso.Picasso;
-
-import java.io.IOException;
-import java.util.ArrayList;
-
-import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
+import okhttp3.ResponseBody;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import java.io.IOException;
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity {
 
     private ArrayList<Model> modelArrayList;
     private LoogleApiV1 apiV1;
-    private submitPostApiV1 apiSv1;
+    private PostService postService;
 
     private ListView lv;
     private EditText postEditText;
@@ -45,9 +36,8 @@ public class MainActivity extends AppCompatActivity {
 
     private Handler handler = new Handler();
     private final int delay = 60 * 1000; // 60 seconds in milliseconds
-    private String cookie = "__test=62d89c24e9b57d03a3ba3717401a3e96";
+    private String cookie = "__test=fcc21eac01ffba8302cc093670e6d98c";
     private String userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.10240";
-    private OkHttpClient customOkHttpClient = new OkHttpClient();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,7 +75,6 @@ public class MainActivity extends AppCompatActivity {
         }, delay);
     }
 
-
     private void displayPosts() {
         OkHttpClient.Builder httpClientBuilder = new OkHttpClient.Builder();
         httpClientBuilder.addInterceptor(chain -> {
@@ -99,13 +88,15 @@ public class MainActivity extends AppCompatActivity {
 
         OkHttpClient httpClient = httpClientBuilder.build();
 
-        Retrofit retrofit = new Retrofit.Builder()
+        Retrofit retrofitLoogle = new Retrofit.Builder()
                 .baseUrl("http://loogleplus.free.nf/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .client(httpClient)
                 .build();
 
-        apiV1 = retrofit.create(LoogleApiV1.class);
+        apiV1 = retrofitLoogle.create(LoogleApiV1.class);
+        postService = retrofitLoogle.create(PostService.class); // Create PostService instance
+
         Call<ArrayList<Model>> arrayListCall = apiV1.callModel();
         arrayListCall.enqueue(new Callback<ArrayList<Model>>() {
             @Override
@@ -145,58 +136,46 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void postContent(String content, String username, String password) {
-        // Create an OkHttpClient with the necessary headers
-        OkHttpClient.Builder httpClientBuilder = new OkHttpClient.Builder();
-        httpClientBuilder.addInterceptor(chain -> {
-            okhttp3.Request original = chain.request();
-            okhttp3.Request.Builder requestBuilder = original.newBuilder()
-                    .header("Cookie", cookie)
-                    .header("User-Agent", userAgent);
-            okhttp3.Request request = requestBuilder.build();
-            return chain.proceed(request);
-        });
+        Call<ResponseBody> call = postService.submitPost(username, password, content);
 
-        OkHttpClient httpClient = httpClientBuilder.build();
-
-        // Create a Retrofit instance
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://loogleplus.free.nf/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .client(httpClient)
-                .build();
-
-        apiV1 = (LoogleApiV1) retrofit.create(submitPostApiV1.class);
-
-        // Create a new post content object with the provided username, password, and content
-        PostContent postContentObject = new PostContent(username, password, content);
-
-        // Make the POST request to your server's submit post API
-        Call<YourResponseType> call = apiSv1.submitPost(postContentObject);
-
-        call.enqueue(new Callback<YourResponseType>() {
+        call.enqueue(new Callback<ResponseBody>() {
             @Override
-            public void onResponse(Call<YourResponseType> call, Response<YourResponseType> response) {
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (response.isSuccessful()) {
                     // Handle a successful response
                     Log.d("PostContent", "Post submitted successfully");
-                    // Clear the input fields
                     postEditText.setText("");
                     usernameEditText.setText("");
                     passwordEditText.setText("");
+                    showToast("Post submitted successfully");
                 } else {
                     // Handle an unsuccessful response
                     Log.e("PostContent", "Failed to submit post");
-                    Toast.makeText(MainActivity.this, "Failed to submit post", Toast.LENGTH_SHORT).show();
+                    // Log the error details here
+                    Log.e("PostContent", "Error message: " + response.message());
+                    Log.e("PostContent", "Error code: " + response.code());
+                    try {
+                        String errorBody = response.errorBody() != null ? response.errorBody().string() : "No error body";
+                        Log.e("PostContent", "Error body: " + errorBody);
+                        showToast("Failed to submit post: " + errorBody);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        showToast("Failed to submit post: An error occurred");
+                    }
                 }
             }
 
             @Override
-            public void onFailure(Call<YourResponseType> call, Throwable t) {
-                // Handle the failure of the POST request
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                // Handle the failure of the GET request
                 t.printStackTrace();
                 Log.e("PostContent", "Error: " + t.getMessage());
-                Toast.makeText(MainActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                showToast("Error: " + t.getMessage());
             }
         });
+    }
+
+    private void showToast(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 }
