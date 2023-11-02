@@ -4,12 +4,10 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="10dp">
+    android:padding="0dp">
 
     <!-- Removed card background to remove the black line -->
-    <?xml version="1.0" encoding="utf-8"?>
-    <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="250dp"
@@ -20,41 +18,46 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="6dp"
+            >
 
             <LinearLayout
-
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                android:layout_marginLeft="5dp"
+                android:layout_marginBottom="5dp"
                 android:layout_marginTop="8dp"> <!-- Add margin-top for title and id -->
+
 
                 <TextView
                     android:id="@+id/idtxt"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1" />
+                    android:layout_gravity="start"
+                    android:layout_marginRight="10dp" /> <!-- Add a small left margin for the "id" -->
 
                 <TextView
                     android:id="@+id/titletxt"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1" />
+                    android:layout_gravity="start" />
             </LinearLayout>
 
             <TextView
                 android:id="@+id/bodytxt"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp" /> <!-- Increase the left margin for "bodytxt" -->
 
             <ImageView
                 android:id="@+id/imageView"
                 android:layout_width="match_parent"
                 android:layout_height="250dp"
-                android:scaleType="fitXY" />
-
+                android:scaleType="fitXY"
+                android:layout_marginLeft="5dp" /> <!-- Increase the left margin for "imageView" -->
         </LinearLayout>
-        
     </androidx.cardview.widget.CardView>
-
 </LinearLayout>

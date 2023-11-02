@@ -1,0 +1,7 @@
+<resources>
+
+    <style name="AppCool" parent="Theme.AppCompat.DayNight.DarkActionBar">
+        <item name="android:background">#d34836</item> <!-- Set the background color for the ActionBar -->
+    </style>
+
+</resources>

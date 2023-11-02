@@ -5,16 +5,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#ECEFF1"
+    android:background="#ffffff"
     tools:context=".MainActivity">
-
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:background="#ffffff"
         android:id="@+id/swipeRefreshLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/postButton">
+        android:layout_above="@+id/addButton">
 
         <!-- Your ListView or other content goes here -->
         <ListView
@@ -23,41 +22,17 @@
             android:layout_height="wrap_content" />
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-    <Button
-        android:id="@+id/postButton"
+    <!-- Floating Action Button (FAB) for "Add" -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/addButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Post"
+        android:text="Add"
+        app:srcCompat="@android:drawable/ic_input_add"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:onClick="submitPostButton" />
-
-    <EditText
-        android:id="@+id/postEditText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Enter your post content"
-        android:layout_above="@+id/postButton"
-        android:padding="16dp" />
-
-    <EditText
-
-        android:id="@+id/usernameEditText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Enter your username"
-        android:layout_above="@+id/postEditText"
-        android:background="#ffffff"
-        android:padding="16dp" />
-
-
-    <EditText
-        android:id="@+id/passwordEditText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Enter your password"
-        android:inputType="textPassword"
-        android:layout_above="@+id/usernameEditText"
-        android:padding="16dp" />
-
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_margin="16dp"
+        app:layout_anchor="@id/swipeRefreshLayout"
+        app:layout_anchorGravity="bottom|end" />
 </RelativeLayout>

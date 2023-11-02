@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <!-- Your input fields go here -->
+    <EditText
+        android:id="@+id/postEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter your post content"
+        android:padding="16dp" />
+
+    <EditText
+        android:id="@+id/usernameEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter your username"
+        android:padding="16dp"
+        android:layout_below="@+id/postEditText" />
+
+    <EditText
+        android:id="@+id/passwordEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter your password"
+        android:inputType="textPassword"
+        android:layout_below="@+id/usernameEditText"
+        android:layout_marginTop="16dp" />
+
+    <!-- Post button inside the dialog -->
+    <Button
+        android:id="@+id/dialogPostButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Post"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/passwordEditText"
+        android:layout_marginTop="16dp" />
+
+</RelativeLayout>
