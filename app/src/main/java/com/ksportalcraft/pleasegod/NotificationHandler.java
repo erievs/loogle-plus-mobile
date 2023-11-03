@@ -1,16 +1,22 @@
 package com.ksportalcraft.pleasegod;
 
-import android.app.Notification;
+import android.app.AlarmManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
+
+import com.ksportalcraft.pleasegod.CustomOkHttpClient;
+import com.ksportalcraft.pleasegod.NotificationModel;
+
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
@@ -22,65 +28,76 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class NotificationHandler {
+    private static final String TAG = "NotificationHandler";
     private static final int NOTIFICATION_ID = 1;
     private static final String NOTIFICATION_CHANNEL_ID = "MyNotificationChannel";
     private Context context;
     private OkHttpClient client;
-    private boolean isRequestInProgress = false; // Flag to track if a request is already in progress
+    private boolean hasScheduledNotifications = false;
+    private NotificationManager notificationManager;
+    private Handler logHandler;
+
+    public NotificationHandler(Context context) {
+        this.context = context;
+        this.client = CustomOkHttpClient.getClient();
+        createNotificationChannel();
+        notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        retrieveNotifications("d");
+
+        // Call the method to schedule alarms
+        scheduleNotificationAlarms();
+
+        // Create a handler for logging messages every second
+        logHandler = new Handler(Looper.getMainLooper());
+        logMessagesPeriodically();
+    }
 
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel notificationChannel = new NotificationChannel(
                     NOTIFICATION_CHANNEL_ID,
-                    "My Notification Channel Name", // Replace with your desired name
+                    "My Notification Channel Name",
                     NotificationManager.IMPORTANCE_DEFAULT
             );
-            notificationChannel.setDescription("My Notification Channel Description"); // Replace with your desired description
+            notificationChannel.setDescription("My Notification Channel Description");
 
-            NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             if (notificationManager != null) {
                 notificationManager.createNotificationChannel(notificationChannel);
             }
-
-            // Add a log message to indicate that the channel has been created
-            Log.d("NotificationHandler", "Notification channel created");
         }
     }
 
-    public NotificationHandler(Context context) {
-        this.context = context;
-        this.client = CustomOkHttpClient.getClient();
-        createNotificationChannel(); // Add this line to create the notification channel
-        schedulePeriodicNotifications();
+    private void scheduleNotificationAlarms() {
+        scheduleNotificationAlarm(1, 58, "com.ksportalcraft.pleasegod.ACTION_SCHEDULE_NOTIFICATIONS_AM");
+        scheduleNotificationAlarm(19, 25, "com.ksportalcraft.pleasegod.ACTION_SCHEDULE_NOTIFICATIONS_PM");
+        hasScheduledNotifications = true;
     }
 
+    private void scheduleNotificationAlarm(int hour, int minute, String action) {
+        Intent intent = new Intent(action);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, hour);
+        calendar.set(Calendar.MINUTE, minute);
+        calendar.set(Calendar.SECOND, 0);
 
-    // Schedule periodic notifications at a specified interval
-    private void schedulePeriodicNotifications() {
-        final Handler handler = new Handler();
-        final int delay = 15000; // Delay in milliseconds (15 seconds)
+        long alarmTime = calendar.getTimeInMillis();
+        long currentTime = System.currentTimeMillis();
 
-        handler.postDelayed(new Runnable() {
-            public void run() {
-                if (!isRequestInProgress) {
-                    retrieveNotifications("d");
-                }
-                handler.postDelayed(this, delay);
-            }
-        }, delay);
-    }
-
-    public void retrieveNotifications(String username) {
-        if (isRequestInProgress) {
-            return; // Return early if a request is already in progress
+        if (alarmTime <= currentTime) {
+            alarmTime += AlarmManager.INTERVAL_DAY;
         }
 
-        isRequestInProgress = true;
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, alarmTime, AlarmManager.INTERVAL_DAY, pendingIntent);
+    }
 
-        String url = "http://loogleplus.free.nf/apiv1/get_user_notifications.php?username=" + username;
+    public void dismissNotification(final String username, final int post_id) {
+        String url = "http://loogleplus.is-great.org/apiv1/dismiss_notification.php?username=" + username + "&postid=" + post_id;
 
         Request request = new Request.Builder()
                 .url(url)
@@ -91,23 +108,19 @@ public class NotificationHandler {
             @Override
             public void onFailure(Call call, IOException e) {
                 e.printStackTrace();
-                isRequestInProgress = false; // Reset the flag on failure
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                isRequestInProgress = false; // Reset the flag after response
                 if (response.isSuccessful()) {
-                    String jsonResponse = response.body().string();
-                    List<NotificationModel> notifications = parseJson(jsonResponse);
-                    showNotifications(notifications);
+                    Log.d("NotificationHandler", "Notification dismissed for post_id: " + post_id);
                 }
             }
         });
     }
 
-    public void dismissNotification(String username, int post_id) {
-        String url = "http://loogleplus.free.nf/apiv1/get_user_notifications.php?username=" + username + "&postid=" + post_id;
+    public void retrieveNotifications(String username) {
+        String url = "http://loogleplus.is-great.org/apiv1/get_user_notifications.php?username=" + username;
 
         Request request = new Request.Builder()
                 .url(url)
@@ -123,7 +136,9 @@ public class NotificationHandler {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if (response.isSuccessful()) {
-                    // The notification with post_id has been dismissed on the server
+                    String jsonResponse = response.body().string();
+                    List<NotificationModel> notifications = parseJson(jsonResponse);
+                    showNotifications(notifications);
                 }
             }
         });
@@ -147,26 +162,35 @@ public class NotificationHandler {
         return notifications;
     }
 
+    private void logMessagesPeriodically() {
+        logHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Log.d(TAG, "Logging a message every second.");
+                logMessagesPeriodically(); // Schedule the next log message
+            }
+        }, 1000); // Delay of 1000 milliseconds (1 second)
+    }
+
     private void showNotifications(List<NotificationModel> notifications) {
         for (NotificationModel notification : notifications) {
+            String sender = notification.getSender();
             String content = notification.getContent();
+            String notificationText = sender + ": " + content;
+            // showPopupNotification(notificationText, sender, notification.getPostId());
+        }
+    }
 
-            Intent intent = new Intent(context, MainActivity.class);
-            PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-
-            Notification notificationItem = new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
-                    .setSmallIcon(R.drawable.loogle)
-                    .setContentTitle("New Notification")
-                    .setContentText(content)
-                    .setContentIntent(pendingIntent)
-                    .setAutoCancel(true)
-                    .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                    .build();
-
-            NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-
-            if (notificationManager != null) {
-                notificationManager.notify(NOTIFICATION_ID, notificationItem);
+    class NotificationAlarmReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (action != null) {
+                if (action.equals("com.ksportalcraft.pleasegod.ACTION_SCHEDULE_NOTIFICATIONS_AM") ||
+                        action.equals("com.ksportalcraft.pleasegod.ACTION_SCHEDULE_NOTIFICATIONS_PM")) {
+                    NotificationHandler notificationHandler = new NotificationHandler(context);
+                    notificationHandler.retrieveNotifications("d");
+                }
             }
         }
     }

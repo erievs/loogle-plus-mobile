@@ -12,14 +12,16 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.ksportalcraft.pleasegod.Custom;
+import com.ksportalcraft.pleasegod.LoogleApiV1;
+import com.ksportalcraft.pleasegod.Model;
+import com.ksportalcraft.pleasegod.PostService;
+import com.ksportalcraft.pleasegod.R;
 
 import okhttp3.OkHttpClient;
 import okhttp3.ResponseBody;
@@ -29,13 +31,12 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-
 import java.io.IOException;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final long FETCH_NOTIFICATIONS_INTERVAL = 10000;
+    private static final long FETCH_NOTIFICATIONS_INTERVAL = 1000;
     private ArrayList<Model> modelArrayList;
     private LoogleApiV1 apiV1;
     private PostService postService;
@@ -54,6 +55,9 @@ public class MainActivity extends AppCompatActivity {
     private final int delay = 60 * 1000; // 60 seconds in milliseconds
     private String cookie = "__test=fcc21eac01ffba8302cc093670e6d98c";
     private String userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.10240";
+
+    // Track the currently displayed toast
+    private Toast currentToast;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,26 +99,16 @@ public class MainActivity extends AppCompatActivity {
             }
         }, delay);
 
-        // Schedule periodic requests for notifications
-        handler.postDelayed(new Runnable() {
-            public void run() {
-                displayNotifications();
-                long FETCH_NOTIFICATIONS_INTERVAL = 10000;
-                handler.postDelayed(this, FETCH_NOTIFICATIONS_INTERVAL);
-            }
-        }, FETCH_NOTIFICATIONS_INTERVAL);
+        // Call the method to display notifications only once
+        displayNotifications();
     }
 
+
     private void displayNotifications() {
-
-
         // Fetch and display notifications here
         NotificationHandler notificationHandler = new NotificationHandler(this);
         notificationHandler.retrieveNotifications("d");
     }
-
-
-
 
     private void displayPosts() {
         OkHttpClient.Builder httpClientBuilder = new OkHttpClient.Builder();
@@ -130,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
         OkHttpClient httpClient = httpClientBuilder.build();
 
         Retrofit retrofitLoogle = new Retrofit.Builder()
-                .baseUrl("http://loogleplus.free.nf/")
+                .baseUrl("http://loogleplus.is-great.org/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .client(httpClient)
                 .build();
@@ -176,6 +170,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
     private void openPostModal() {
         // Create and show the modal dialog
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -206,7 +201,6 @@ public class MainActivity extends AppCompatActivity {
         // Now you have set the click listener for postButton within dialog_post
         dialog.show();
     }
-
 
     private void postContent(String content, String username, String password) {
         Call<ResponseBody> call = postService.submitPost(username, password, content);
@@ -244,15 +238,26 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-
-
+    // Show a toast message and hide it after a delay
     private void showToast(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        // Check if there's already a toast, and if yes, cancel it
+        if (currentToast != null) {
+            currentToast.cancel();
+        }
+
+        currentToast = Toast.makeText(this, message, Toast.LENGTH_SHORT);
+        currentToast.show();
+
+        // Schedule a timer to hide the toast after 10 seconds
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (currentToast != null) {
+                    currentToast.cancel();
+                }
+            }
+        }, 10000); // 10 seconds
     }
 
-
-
-
-
-
+    // ... other methods ...
 }

@@ -32,6 +32,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <receiver android:name=".NotificationHandler$NotificationAlarmReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.ksportalcraft.pleasegod.ACTION_SCHEDULE_NOTIFICATIONS_AM" />
+                <action android:name="com.ksportalcraft.pleasegod.ACTION_SCHEDULE_NOTIFICATIONS_PM" />
+            </intent-filter>
+        </receiver>
+
+
     </application>
 
 </manifest>

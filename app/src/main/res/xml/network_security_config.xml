@@ -6,5 +6,6 @@
         <domain includeSubdomains="true">http://localhost:8080</domain>
         <domain includeSubdomains="true">localhost</domain>
         <domain includeSubdomains="true">jsonplaceholder.typicode.com</domain>
+        <domain includeSubdomains="true">loogleplus.is-great.org</domain>
     </domain-config>
 </network-security-config>
