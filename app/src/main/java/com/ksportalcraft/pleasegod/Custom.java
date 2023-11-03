@@ -1,6 +1,8 @@
 package com.ksportalcraft.pleasegod;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,14 +10,12 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.ksportalcraft.pleasegod.CustomOkHttpClient;
-import com.ksportalcraft.pleasegod.Model;
-import com.squareup.picasso.MemoryPolicy;
-import com.squareup.picasso.NetworkPolicy;
-import com.squareup.picasso.OkHttp3Downloader;
 import com.squareup.picasso.Picasso;
-import okhttp3.OkHttpClient;
+import com.squareup.picasso.Target;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.List;
 
 public class Custom extends BaseAdapter {
@@ -27,21 +27,17 @@ public class Custom extends BaseAdapter {
         this.modelList = modelList;
         this.context = context;
         this.layout = layout;
+    }
 
-        // Initialize Picasso in the constructor
-        Picasso picasso = new Picasso.Builder(context)
-                .downloader(new OkHttp3Downloader(CustomOkHttpClient.getClient()))
-                .build();
-
-        // Preload and cache all images in the modelList
-        for (Model model : modelList) {
-            if (model.getImageUrl() != null) {
-                picasso.load(model.getImageUrl())
-                        .resize(500, 500) // Adjust dimensions as needed
-                        .centerInside()
-                        .fetch();
-            }
+    // Helper method to check if an image is in the local storage
+    private File getLocalImageFile(String imageUrl) {
+        File localImageFile = new File(context.getFilesDir(), "image_cache_directory");
+        if (!localImageFile.exists()) {
+            localImageFile.mkdirs();
         }
+
+        String fileName = imageUrl.substring(imageUrl.lastIndexOf('/') + 1);
+        return new File(localImageFile, fileName);
     }
 
     @Override
@@ -59,7 +55,7 @@ public class Custom extends BaseAdapter {
         return position;
     }
 
-    private class ViewHolder {
+    private static class ViewHolder {
         ImageView imageView;
         TextView idtxt;
         TextView titletxt;
@@ -89,17 +85,45 @@ public class Custom extends BaseAdapter {
         viewHolder.bodytxt.setText(model.getBody());
 
         if (model.getImageUrl() != null) {
-            Picasso picasso = new Picasso.Builder(context)
-                    .downloader(new OkHttp3Downloader(CustomOkHttpClient.getClient()))
-                    .build();
+            File imageFile = getLocalImageFile(model.getImageUrl());
 
-            // Load the image with caching
-            picasso.load(model.getImageUrl())
-                    .resize(500, 500) // Adjust dimensions as needed
-                    .centerInside()
-                    .memoryPolicy(MemoryPolicy.NO_CACHE) // Disable memory cache
-                    .networkPolicy(NetworkPolicy.NO_CACHE) // Disable network cache
-                    .into(viewHolder.imageView);
+            if (imageFile.exists()) {
+                // Load the image from local storage
+                Picasso.get().load(imageFile).into(viewHolder.imageView);
+            } else {
+                // Image not found in local storage, download and save it
+                Picasso.get()
+                        .load(model.getImageUrl())
+                        .resize(500, 500) // Adjust dimensions as needed
+                        .centerInside()
+                        .into(new Target() {
+                            @Override
+                            public void onBitmapLoaded(android.graphics.Bitmap bitmap, Picasso.LoadedFrom from) {
+                                // Save the image to local storage
+                                File localImageFile = getLocalImageFile(model.getImageUrl());
+                                try {
+                                    FileOutputStream outputStream = new FileOutputStream(localImageFile);
+                                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+                                    outputStream.flush();
+                                    outputStream.close();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                                // Set the loaded image to the ImageView
+                                viewHolder.imageView.setImageBitmap(bitmap);
+                            }
+
+                            @Override
+                            public void onBitmapFailed(Exception e, Drawable errorDrawable) {
+                                // Handle failure to load the image
+                            }
+
+                            @Override
+                            public void onPrepareLoad(Drawable placeHolderDrawable) {
+                                // Prepare for image loading
+                            }
+                        });
+            }
         } else {
             viewHolder.imageView.setImageDrawable(null);
         }

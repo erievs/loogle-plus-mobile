@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
 
     private Handler handler = new Handler();
     private final int delay = 60 * 1000; // 60 seconds in milliseconds
-    private String cookie = "__test=fcc21eac01ffba8302cc093670e6d98c";
+    private String cookie = "__test=62d89c24e9b57d03a3ba3717401a3e96";
     private String userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.10240";
 
     // Track the currently displayed toast
@@ -100,14 +100,15 @@ public class MainActivity extends AppCompatActivity {
         }, delay);
 
         // Call the method to display notifications only once
-        displayNotifications();
+    //    displayNotifications();
     }
 
+    // Disabled for now
 
-    private void displayNotifications() {
+   private void displayNotifications() {
         // Fetch and display notifications here
-        NotificationHandler notificationHandler = new NotificationHandler(this);
-        notificationHandler.retrieveNotifications("d");
+      //  NotificationHandler notificationHandler = new NotificationHandler(this);
+        //notificationHandler.retrieveNotifications("d");
     }
 
     private void displayPosts() {
@@ -124,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
         OkHttpClient httpClient = httpClientBuilder.build();
 
         Retrofit retrofitLoogle = new Retrofit.Builder()
-                .baseUrl("http://loogleplus.is-great.org/")
+                .baseUrl("http://loogleplus.free.nf/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .client(httpClient)
                 .build();

@@ -166,7 +166,7 @@ public class NotificationHandler {
         logHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                Log.d(TAG, "Logging a message every second.");
+                Log.d(TAG, "Running");
                 logMessagesPeriodically(); // Schedule the next log message
             }
         }, 1000); // Delay of 1000 milliseconds (1 second)
